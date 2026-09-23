@@ -13,8 +13,8 @@ and operate.
 
 | Репозиторий | Что это | Статус |
 |---|---|---|
-| [slovokhod](https://github.com/Fanatat/slovokhod-vk) | «Словоход» — филворд | опубликовано на 1 площадке · [веб](https://slovokhod-vk.vercel.app) |
-| [catnonogram](https://github.com/Fanatat/catnonogram-vk) | «Кот и японские кроссворды» — нонограммы | опубликовано на 2 площадках · [в VK](https://vk.com/app54676906) · [веб](https://catnonogram-vk.vercel.app) |
+| [slovokhod](https://github.com/Fanatat/slovokhod-vk) | «Словоход» — филворд | опубликовано на 1 площадке |
+| [catnonogram](https://github.com/Fanatat/catnonogram-vk) | «Кот и японские кроссворды» — нонограммы | опубликовано на 2 площадках |
 | [Color_Sort](https://github.com/Fanatat/Color_Sort-Vk) | Color Sort — головоломка-сортировка цветов | опубликовано на 3 площадках |
 | [lane-battle](https://github.com/Fanatat/lane-battle-vk) | Lane Battler — lane-defense, 11 языков; правила боя выведены из разбора 375 отзывов на лидера жанра | опубликовано на 2 площадках, ещё на 1 — на модерации |
 | [Royal_solitaire](https://github.com/Fanatat/Royal_solitaire) | Royal Solitaire — пасьянс | в очереди на модерацию на 3 площадках |
