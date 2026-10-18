@@ -1,90 +1,52 @@
-# Валерий · Valery
+# Валерий · Автоматизация и ИИ-агенты
 
-**AI-специалист: автоматизация и внедрение ИИ-агентов (Claude Code) в рабочие процессы.**
-С мая 2026 года строю системы на ИИ-агентах и сопровождаю их в работе: боты, конвейеры, мониторинг, браузерные игры с интеграциями площадок.
+Создаю и сопровождаю системы, которые сокращают ручную работу: от отбора вакансий до производства видео. Веду полный цикл — постановка задачи, разработка с ИИ-агентами, проверка, запуск и эксплуатация.
 
-Код руками не пишу: ставлю задачу агентам, принимаю результат тестами и живым запуском, отвечаю за выпуск и эксплуатацию.
-
-[Портфолио vanatat.ru](https://vanatat.ru/) · [Telegram @fanatat](https://t.me/fanatat)
+[Портфолио vanatat.ru](https://vanatat.ru/) · [Демо проектов](#проекты) · [Telegram @fanatat](https://t.me/fanatat)
 
 Ищу удалённую работу, в том числе в иностранных компаниях; подходят проектная работа и частичная занятость.
 
-## Что я делаю
-
-- **Автоматизация на ИИ-агентах.** Беру рутинный процесс и довожу его до системы, которая работает без присмотра: расписания, журналы, резервные копии, мониторинг, лимиты расхода.
-- **Принцип:** числа считает программа, модель только формулирует вывод; важные действия подтверждает человек.
-- **Эксплуатация.** Свой сервер: systemd, cron, Docker, PostgreSQL и SQLite, внешний сторож (heartbeat), регулярная проверка периметра.
-
 ## Проекты
 
-Код большинства проектов закрыт: это рабочие системы с данными и ключами. Ниже их описание. Архитектуру могу показать на созвоне.
-
 ### Линда: ИИ-отбор вакансий
-Собирает вакансии с hh.ru и Хабр Карьеры каждые 15 минут. Первая модель отсеивает явно неподходящие, вторая оценивает остальные по профилю. До человека доходит меньше 3 % вакансий, а отклик уходит только после его подтверждения. Если площадка меняет вёрстку, ИИ правит парсер в изолированной песочнице. Правка принимается, только когда проходят тесты. 134 автотеста, независимый аудит кода, системой пользуются три человека.
-Python, SQLite, Telegram, LLM.
+**До человека доходит меньше 3 % вакансий, системой пользуются три человека.**
+Каждые 15 минут собирает вакансии с hh.ru и Хабр Карьеры, две модели по очереди отсеивают и оценивают их по профилю, отклик уходит только после подтверждения. Если площадка меняет вёрстку, ИИ сам чинит парсер в песочнице, правка принимается только после тестов.
+Python · SQLite · Telegram · LLM · 134 автотеста
 
 ### Контент-завод: короткие ролики через Telegram-бота
-Пишет сценарий, подбирает материалы, синтезирует голос, добавляет субтитры, монтирует ролик и проверяет факты. Каждый ролик идёт дальше только после одобрения человеком в Telegram. Работает с сентября 2026 года, публикация на площадки пока ручная.
-Python, ffmpeg, Telegram Bot API, синтез речи.
-
-### Автоматизация на n8n и база знаний
-На своём сервере работают 11 сценариев n8n:
-- недельный отчёт по играм: числа считает код, ИИ пишет вывод, а каждое число в выводе сверяется с посчитанным;
-- утренняя сводка о здоровье сервера в Telegram;
-- сторож ошибок;
-- приём выгрузок статистики;
-- заявки с сайта.
-
-С октября 2026 года работает база знаний (RAG на Qdrant): она отвечает по моим документам в чате и в Telegram-боте и сама проверяет ответы.
-
-### Штаб из ИИ-агентов и мониторинг
-Восемь ИИ-менеджеров проектов в Telegram и мониторинг восьми сервисов с «dead man's switch»: тревога приходит, даже если упал сам монитор. Отработали 111 дней. Развитие менеджеров сейчас заморожено, мониторинг продолжает работать.
-
-### Telegram-боты и датчик воздуха
-- Пять ботов в работе. Два работают как системные службы: публикуют подборки из архива 169 000+ фото и делают ежедневную рассылку видео и текста. Один из них работает больше 500 дней без падений.
-- Датчик воздуха на ESP32: семь датчиков, офлайн-буфер, публичная лента показаний на сайте, 91 день непрерывной работы.
-
-### Браузерная автоматизация без API
-Сбор статистики из кабинетов ВК, Яндекса и Дзена через Playwright, AdsPower и MCP. Ночной оркестратор, журналы с ограничением объёма.
+**Из темы — готовый ролик: сценарий, материалы, голос, субтитры, монтаж, проверка фактов.**
+Каждый ролик идёт дальше только после одобрения в Telegram. Работает с сентября 2026 года.
+Python · ffmpeg · Telegram Bot API · синтез речи · [описание и демо](https://vanatat.ru/projects/content-factory/)
 
 ### Браузерные игры: полный цикл до площадки
-Занимался геймдевом: девять игр за три месяца на JavaScript, Three.js, Godot и Unity. Четыре игры опубликованы в каталоге ВК, остальные на модерации или в разработке. В играх:
-- SDK площадок (VK Bridge, Yandex Games SDK);
-- реклама, внутриигровые покупки, облачные сохранения, лидерборды;
-- прохождение модерации;
-- свой бэкенд на Docker и PostgreSQL.
-
-Всего по проектам около 1 500 автотестов.
+**Четыре игры опубликованы в каталоге ВК — в них можно сыграть прямо сейчас.**
+SDK площадок (VK Bridge, Yandex Games SDK), реклама, покупки, облачные сохранения, лидерборды, прохождение модерации, свой бэкенд.
+JavaScript · Three.js · Docker · PostgreSQL
 
 | Игра | Играть | ВК |
 |---|---|---|
-| Словоход (филворд) | [play.vanatat.ru/slovokhod](https://play.vanatat.ru/slovokhod/) | [vk.com/app54674073](https://vk.com/app54674073) |
-| Кот и японские кроссворды | [play.vanatat.ru/catnonogram](https://play.vanatat.ru/catnonogram/) | [vk.com/app54676906](https://vk.com/app54676906) |
-| Сортировка: Цвет и Форма | [play.vanatat.ru/color-sort](https://play.vanatat.ru/color-sort/) | [vk.com/app54683949](https://vk.com/app54683949) |
-| Две крепости (стратегия на одной линии) | [play.vanatat.ru/lane-battle](https://play.vanatat.ru/lane-battle/) | [vk.com/app54759696](https://vk.com/app54759696) |
+| Словоход (филворд) | [открыть](https://play.vanatat.ru/slovokhod/) | [vk.com/app54674073](https://vk.com/app54674073) |
+| Кот и японские кроссворды | [открыть](https://play.vanatat.ru/catnonogram/) | [vk.com/app54676906](https://vk.com/app54676906) |
+| Сортировка: Цвет и Форма | [открыть](https://play.vanatat.ru/color-sort/) | [vk.com/app54683949](https://vk.com/app54683949) |
+| Две крепости | [открыть](https://play.vanatat.ru/lane-battle/) | [vk.com/app54759696](https://vk.com/app54759696) |
 
-Тестовые сборки всех игр, включая игры на модерации, лежат в [Fanatat/games-dev](https://github.com/Fanatat/games-dev). Они могут отличаться от боевых версий.
-
-### Сайт-портфолио
-[vanatat.ru](https://vanatat.ru/) ([репозиторий lending2](https://github.com/Fanatat/lending2)). Стек: Next.js 14, React, TypeScript, Tailwind, Three.js. На каждый PR запускается CI: lint, проверка типов, сборка, smoke-тест Playwright. Сайт сам выкладывается на GitHub Pages и есть на русском и английском.
+### Ещё
+- [Штаб из восьми ИИ-агентов](https://vanatat.ru/projects/staff/) и мониторинг сервисов с внешним сторожем.
+- [Telegram-боты](https://vanatat.ru/projects/channel-autopilot/): публикации и рассылки по расписанию, один работает больше 500 дней без падений.
+- n8n-сценарии и база знаний (RAG на Qdrant); сайт-портфолио на Next.js с CI ([lending2](https://github.com/Fanatat/lending2)).
 
 ## Стек
 
-- Claude Code и ИИ-агенты; LLM-интеграции (Claude, Gemini)
-- Python, TypeScript и Next.js, JavaScript и Three.js
-- Telegram Bot API, n8n, RAG (Qdrant), Playwright
-- Linux и VPS: systemd, cron
-- Docker, PostgreSQL, SQLite
-- Мониторинг, бэкапы, автотесты
+Python · TypeScript / Next.js · JavaScript / Three.js · Claude Code и LLM (Claude, Gemini) · Telegram Bot API · n8n · Qdrant · Playwright · Linux, systemd, cron · Docker · PostgreSQL · SQLite
 
 ## Как я работаю
 
-- Формулирую задачу и критерий готовности.
-- Проверяю результат запуском и тестами, разбираю ошибки.
-- Выпускаю и сопровождаю: расписания, резервные копии, мониторинг. Например, у датчика воздуха я проверяю всю цепочку от датчика через сервер и JSON до виджета, а также время последнего показания. Если страница открывается, это ещё не значит, что данные свежие.
+Код пишут ИИ-агенты (Claude Code), а я отвечаю за результат: формулирую задачу и критерий готовности, принимаю работу тестами и живым запуском, выпускаю и сопровождаю — расписания, резервные копии, мониторинг. Числа считает программа, модель только формулирует вывод; важные действия подтверждает человек.
+
+Большинство систем — рабочие, с данными и ключами, поэтому код закрыт. Архитектуру покажу на созвоне.
 
 ## English
 
-I build and operate AI-agent automation: a job-matching pipeline with self-healing parsers, a video content pipeline, n8n workflows, a RAG knowledge base, Telegram bots, monitoring with a dead man's switch, and browser games with platform integrations (four live on VK). I do not hand-write code. I specify tasks for coding agents (Claude Code), accept the results through tests and live runs, and own release and operations. Most source code is private because these are working systems; I can walk through the architecture on a call. I'm looking for remote work, including international teams; project-based or part-time work is fine.
+I build and run AI-agent automation that removes manual work: a job-matching pipeline with self-healing parsers, a short-video pipeline, Telegram bots, monitoring, and browser games (four live on VK). I own the full cycle — task definition, development with coding agents (Claude Code), verification, release and operations. Open to remote work, including international teams; project-based or part-time is fine.
 
-Portfolio: [vanatat.ru/en](https://vanatat.ru/en/) · Telegram: [@fanatat](https://t.me/fanatat)
+[Portfolio](https://vanatat.ru/en/) · [Telegram @fanatat](https://t.me/fanatat)
