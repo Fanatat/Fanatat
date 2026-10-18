@@ -1,0 +1,137 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Обложка профиля</title>
+<style>html,body{margin:0;background:#0D1117}canvas{display:block}</style>
+<canvas id="c"></canvas>
+<script src="common.js"></script>
+<script>
+// Обложка: «от задачи до работающей системы». Цикл 12 с, первый и последний кадр совпадают.
+window.SCENE = MOBILE
+  ? { w: 480, h: 500, duration: 12, fps: 20, still: 10.2 }
+  : { w: 1200, h: 380, duration: 12, fps: 20, still: 10.2 };
+
+// Десктоп: схема в одну строку. Телефон: та же схема сверху вниз, подписи крупнее относительно ширины.
+const N = MOBILE ? {
+  task:    { x: 130, y: 190, w: 150, h: 46, label: "Задача" },
+  plan:    { x: 340, y: 190, w: 190, h: 46, label: "Планирование" },
+  agentA:  { x: 130, y: 285, w: 150, h: 46, label: "Агент 1" },
+  agentB:  { x: 350, y: 285, w: 150, h: 46, label: "Агент 2" },
+  check:   { x: 240, y: 370, w: 160, h: 46, label: "Проверка" },
+  launch:  { x: 110, y: 455, w: 140, h: 46, label: "Запуск" },
+  monitor: { x: 345, y: 455, w: 230, h: 46, label: "Мониторинг" },
+} : {
+  task:    { x: 130,  y: 235, w: 150, h: 50, label: "Задача" },
+  plan:    { x: 350,  y: 235, w: 170, h: 50, label: "Планирование" },
+  agentA:  { x: 580,  y: 180, w: 150, h: 50, label: "Агент 1" },
+  agentB:  { x: 580,  y: 290, w: 150, h: 50, label: "Агент 2" },
+  check:   { x: 810,  y: 235, w: 150, h: 50, label: "Проверка" },
+  launch:  { x: 1030, y: 235, w: 150, h: 50, label: "Запуск" },
+  monitor: { x: 1030, y: 325, w: 240, h: 50, label: "Мониторинг" },
+};
+const R = n => [n.x + n.w / 2, n.y];
+const L = n => [n.x - n.w / 2, n.y];
+const T = n => [n.x, n.y - n.h / 2];
+const B = n => [n.x, n.y + n.h / 2];
+
+const E = MOBILE ? {
+  in:   straight([12, N.task.y], L(N.task)),
+  tp:   straight(R(N.task), L(N.plan)),
+  pa:   vcurve(B(N.plan), T(N.agentA)),
+  pb:   vcurve(B(N.plan), T(N.agentB)),
+  ac:   vcurve(B(N.agentA), T(N.check)),
+  bc:   vcurve(B(N.agentB), T(N.check)),
+  cl:   vcurve(B(N.check), T(N.launch)),
+  lm:   straight(R(N.launch), L(N.monitor)),
+} : {
+  in:   straight([18, 235], L(N.task)),
+  tp:   straight(R(N.task), L(N.plan)),
+  pa:   curve(R(N.plan), L(N.agentA)),
+  pb:   curve(R(N.plan), L(N.agentB)),
+  ac:   curve(R(N.agentA), L(N.check)),
+  bc:   curve(R(N.agentB), L(N.check)),
+  cl:   straight(R(N.check), L(N.launch)),
+  lm:   straight(B(N.launch), T(N.monitor)),
+};
+
+// Сценарий цикла: окна импульсов и моменты прихода в узлы.
+const P = {
+  in: [0.2, 0.9], tp: [1.2, 1.9], pa: [2.7, 3.5], pb: [2.7, 3.5],
+  ac: [5.5, 6.2], bc: [6.0, 6.7], cl: [8.0, 8.6], lm: [8.9, 9.3],
+};
+const ON = { task: 0.85, plan: 1.85, agentA: 3.45, agentB: 3.45, check: 6.65, launch: 8.55, monitor: 9.25 };
+const FADE = [11.0, 11.9];
+const GREEN_EDGES = ["cl", "lm"];
+
+const ctx = setupCanvas();
+
+window.renderAt = function (t) {
+  clear(ctx);
+
+  // Шапка: имя и специализация видны с первого кадра.
+  if (MOBILE) {
+    text(ctx, "Валерий / Valery", 28, 58, { size: 36, weight: 650, color: C.text });
+    text(ctx, "Автоматизация · ИИ-агенты ·", 29, 94, { size: 21, weight: 450, color: C.muted });
+    text(ctx, "Работающие продукты", 29, 122, { size: 21, weight: 450, color: C.muted });
+  } else {
+    text(ctx, "Валерий / Valery", 60, 84, { size: 46, weight: 650, color: C.text });
+    text(ctx, "Автоматизация · ИИ-агенты · Работающие продукты", 62, 122, { size: 22, weight: 450, color: C.muted });
+  }
+
+  // Линии и их «пройденная» подсветка.
+  for (const k in E) drawEdge(ctx, E[k], edgeLit(t, P[k][1], ...FADE), GREEN_EDGES.includes(k) ? C.green : C.accent);
+
+  const lv = {};
+  for (const k in N) lv[k] = level(t, ON[k], ...FADE);
+  drawNode(ctx, N.task, lv.task);
+  drawNode(ctx, N.plan, lv.plan);
+
+  // Агенты: полоса прогресса внутри узла, разные темпы.
+  for (const [k, t0, t1] of [["agentA", 3.6, 5.4], ["agentB", 3.6, 5.9]]) {
+    const n = N[k];
+    drawNode(ctx, n, lv[k], C.accent, { dy: -4 });
+    const vis = smooth(3.5, 3.8, t) * (1 - smooth(...FADE, t));
+    if (vis > 0.01) {
+      const bw = n.w - 40, bx = n.x - bw / 2, by = n.y + n.h / 2 - 12;
+      const k2 = easeInOut(clamp((t - t0) / (t1 - t0)));
+      ctx.save();
+      ctx.globalAlpha = vis;
+      roundRect(ctx, bx, by, bw, 4, 2); ctx.fillStyle = C.border; ctx.fill();
+      if (k2 > 0) { roundRect(ctx, bx, by, Math.max(4, bw * k2), 4, 2); ctx.fillStyle = k2 >= 1 ? C.green : C.accent; ctx.fill(); }
+      ctx.restore();
+    }
+  }
+
+  // Проверка: дуга ожидания, затем зелёная галочка.
+  const checked = smooth(7.45, 7.6, t);
+  drawNode(ctx, N.check, lv.check, checked > 0.5 ? C.green : C.accent);
+  const cx = N.check.x + N.check.w / 2 - 4, cy = N.check.y - N.check.h / 2 + 4;
+  drawSpinner(ctx, cx, cy, 10, t, smooth(6.7, 6.9, t) * (1 - checked));
+  drawCheck(ctx, cx, cy, 12, smooth(7.5, 7.9, t), checked * (1 - smooth(...FADE, t)));
+
+  // Запуск и мониторинг — зелёные: система работает.
+  drawNode(ctx, N.launch, lv.launch, C.green);
+  const m = N.monitor;
+  drawNode(ctx, m, lv.monitor, C.green, { align: "left", pad: 18 });
+  const mv = smooth(9.3, 9.8, t) * (1 - smooth(...FADE, t));
+  if (mv > 0.01) {
+    // Мини-график: спокойная волна, бегущая слева направо, и «дышащая» точка статуса.
+    const x0 = m.x + 54, x1 = m.x + m.w / 2 - 16, mid = m.y;
+    ctx.save();
+    ctx.globalAlpha = mv;
+    ctx.beginPath();
+    for (let x = x0; x <= x1; x += 2) {
+      const ph = (x - x0) / 9 - (t - 9.3) * 5;
+      const y = mid + Math.sin(ph) * 5 + Math.sin(ph * 0.37) * 3;
+      x === x0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = C.green; ctx.lineWidth = 1.8; ctx.stroke();
+    const br = 0.5 + 0.5 * Math.sin((t - 9.3) * 3);
+    ctx.beginPath(); ctx.arc(x0 - 12, mid, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = C.green; ctx.shadowColor = rgba(C.green, 0.8); ctx.shadowBlur = 6 + 8 * br; ctx.fill();
+    ctx.restore();
+  }
+
+  // Импульсы поверх линий.
+  for (const k in P) drawPulse(ctx, E[k], t, ...P[k], GREEN_EDGES.includes(k) ? C.green : C.accent);
+};
+</script>

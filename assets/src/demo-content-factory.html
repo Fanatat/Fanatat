@@ -1,0 +1,125 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Контент-завод — схема работы</title>
+<style>html,body{margin:0;background:#0D1117}canvas{display:block}</style>
+<canvas id="c"></canvas>
+<script src="common.js"></script>
+<script>
+// Схема работы контент-завода: тема → материалы → предпросмотр ролика → одобрение в Telegram.
+// Тема и кадры условные; кнопки «✅ Да / ❌ Нет» — как в боте (pipeline.py).
+// GIF начинается с законченного кадра (start), затем схема гаснет и собирается заново.
+window.SCENE = MOBILE
+  ? { w: 480, h: 840, duration: 10, fps: 15, still: 9.1, start: 9.1 }
+  : { w: 1040, h: 460, duration: 10, fps: 15, still: 9.1, start: 9.1 };
+const FADE = [9.35, 9.95];
+const ctx = setupCanvas();
+
+// Панели шагов: на десктопе в ряд, на телефоне — тема и материалы во всю ширину, затем два шага рядом.
+const TITLES = ["1 · Тема", "2 · Материалы", "3 · Предпросмотр", "4 · Одобрение"];
+const COL = (MOBILE ? [
+  { x: 20, y: 80, w: 440, h: 160 }, { x: 20, y: 270, w: 440, h: 180 },
+  { x: 20, y: 480, w: 210, h: 340 }, { x: 250, y: 480, w: 210, h: 340 },
+] : [0, 1, 2, 3].map(i => ({ x: 40 + i * 249, y: 96, w: 213, h: 336 })))
+  .map((c, i) => ({ ...c, title: TITLES[i] }));
+const ON = [0.3, 1.5, 4.9, 7.8];
+const link = (a, b) => a.y === b.y
+  ? straight([a.x + a.w, a.y + 168], [b.x, b.y + 168])
+  : straight([b.x + b.w / 2, a.y + a.h], [b.x + b.w / 2, b.y]);
+
+function panel(c, a) {
+  roundRect(ctx, c.x, c.y, c.w, c.h, 12);
+  ctx.fillStyle = C.panel; ctx.fill();
+  ctx.lineWidth = 1.5; ctx.strokeStyle = mix(C.border, C.accent, a * 0.8); ctx.stroke();
+  text(ctx, c.title, c.x + 18, c.y + 34, { size: 19, weight: 600, color: mix(C.label, "#FFFFFF", a) });
+}
+const show = (t0, t) => smooth(t0, t0 + 0.4, t) * (1 - smooth(...FADE, t));
+
+window.renderAt = function (t) {
+  clear(ctx);
+  const W = window.SCENE.w, X = COL[0].x;
+  text(ctx, "Схема работы · Контент-завод", X, 52, { size: 22, weight: 650 });
+  if (!MOBILE) text(ctx, "условная тема", W - X, 52, { size: 18, color: C.muted, align: "right" });
+
+  COL.forEach((c, i) => panel(c, level(t, ON[i], ...FADE)));
+  [[1.0, 1.5], [4.4, 4.9], [7.3, 7.8]].forEach(([t0, t1], i) => {
+    const e = link(COL[i], COL[i + 1]);
+    drawEdge(ctx, e, edgeLit(t, t1, ...FADE));
+    drawPulse(ctx, e, t, t0, t1);
+  });
+
+  // 1. Тема: пост с тегом или пункт контент-плана.
+  let c = COL[0], v = show(0.3, t);
+  if (v > 0.01) {
+    ctx.save(); ctx.globalAlpha = v;
+    roundRect(ctx, c.x + 18, c.y + 56, 92, 30, 15); ctx.fillStyle = "#123236"; ctx.fill();
+    ctx.restore();
+    text(ctx, "#футбол", c.x + 64, c.y + 77, { size: 17, color: C.accent, align: "center", alpha: v });
+    const lines = MOBILE ? ["Как менялся мяч чемпионатов мира"] : ["Как менялся мяч", "чемпионатов", "мира"];
+    lines.forEach((s, i) => text(ctx, s, c.x + 18, c.y + 122 + i * 28, { size: 19, weight: 600, alpha: v }));
+    const note = MOBILE ? ["пост в чате или пункт контент-плана"] : ["пост в чате или", "пункт контент-плана"];
+    note.forEach((s, i) => text(ctx, s, c.x + 18, c.y + (MOBILE ? 148 : 236) + i * 22, { size: 16, color: C.muted, alpha: v }));
+  }
+
+  // 2. Материалы: шаги конвейера отмечаются по очереди (на телефоне — в две колонки).
+  c = COL[1];
+  ["Сценарий", "Проверка фактов", "Кадры", "Голос", "Субтитры", "Монтаж"].forEach((s, i) => {
+    const ts = 1.7 + i * 0.45, sv = show(ts, t);
+    const xx = c.x + (MOBILE ? (i < 3 ? 0 : 220) : 0), yy = c.y + 76 + (MOBILE ? i % 3 : i) * (MOBILE ? 36 : 40);
+    text(ctx, s, xx + 46, yy, { size: 18, color: C.label, alpha: sv });
+    drawCheck(ctx, xx + 27, yy - 6, 10, smooth(ts + 0.15, ts + 0.4, t), sv);
+  });
+
+  // 3. Предпросмотр: вертикальный кадр 9:16, «камера» едет, субтитры сменяются.
+  c = COL[2]; v = show(4.9, t);
+  if (v > 0.01) {
+    const pw = 140, ph = 250, px = c.x + (c.w - pw) / 2, py = c.y + 56;
+    ctx.save(); ctx.globalAlpha = v;
+    roundRect(ctx, px, py, pw, ph, 12); ctx.fillStyle = "#0A0E13"; ctx.fill();
+    ctx.clip();
+    const shot = Math.floor(Math.max(0, t - 4.9) / 0.9) % 3;
+    const z = 1 + ((t - 4.9) % 0.9) * 0.12;
+    const tones = [["#1C3B44", "#2C5C66"], ["#22324A", "#3B5577"], ["#1F3A2C", "#2F5E44"]][shot];
+    ctx.translate(px + pw / 2, py + ph / 2); ctx.scale(z, z); ctx.translate(-(px + pw / 2), -(py + ph / 2));
+    ctx.fillStyle = tones[0]; ctx.fillRect(px, py, pw, ph);
+    ctx.fillStyle = tones[1];
+    ctx.beginPath(); ctx.arc(px + pw / 2, py + 105, 40, 0, Math.PI * 2); ctx.fill();
+    roundRect(ctx, px + 20, py + 160, pw - 40, 14, 7); ctx.fill();
+    ctx.restore();
+    const words = ["Как менялся", "мяч", "чемпионатов"][shot];
+    ctx.save(); ctx.globalAlpha = v;
+    roundRect(ctx, px + 14, py + 196, pw - 28, 28, 6); ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fill();
+    ctx.restore();
+    text(ctx, words, px + pw / 2, py + 216, { size: 16, weight: 650, align: "center", alpha: v });
+    const pk = clamp((t - 4.9) / 2.6);
+    ctx.save(); ctx.globalAlpha = v;
+    roundRect(ctx, px, py + ph + 14, pw, 4, 2); ctx.fillStyle = C.border; ctx.fill();
+    roundRect(ctx, px, py + ph + 14, Math.max(4, pw * pk), 4, 2); ctx.fillStyle = C.accent; ctx.fill();
+    ctx.restore();
+  }
+
+  // 4. Одобрение: дальше ролик идёт только после «✅ Да».
+  c = COL[3]; v = show(7.8, t);
+  if (v > 0.01) {
+    const bx = c.x + 18, bw = c.w - 36, y = c.y;
+    ctx.save(); ctx.globalAlpha = v;
+    roundRect(ctx, bx, y + 56, bw, 76, 10); ctx.fillStyle = "#1E2630"; ctx.fill();
+    ctx.restore();
+    text(ctx, "🎬 Ролик готов", bx + 14, y + 86, { size: 17, weight: 600, alpha: v });
+    text(ctx, "Выкладываем?", bx + 14, y + 114, { size: 17, color: C.label, alpha: v });
+    const press = smooth(8.5, 8.65, t) * (1 - smooth(8.85, 9.1, t)), done = smooth(8.8, 9.05, t);
+    const btn = (label, x, w, hl) => {
+      ctx.save(); ctx.globalAlpha = v;
+      roundRect(ctx, x, y + 144, w, 38, 8);
+      ctx.fillStyle = mix("#1E2630", C.greenHi, hl); ctx.fill();
+      ctx.lineWidth = 1.2; ctx.strokeStyle = mix(C.border, C.green, hl); ctx.stroke();
+      ctx.restore();
+      text(ctx, label, x + w / 2, y + 169, { size: 17, align: "center", alpha: v });
+    };
+    btn("✅ Да", bx, bw / 2 - 4, Math.max(press, done * 0.6));
+    btn("❌ Нет", bx + bw / 2 + 4, bw / 2 - 4, 0);
+    const dv = done * (1 - smooth(...FADE, t));
+    text(ctx, "Одобрено —", bx, y + 226, { size: 17, color: C.green, alpha: dv });
+    text(ctx, "ролик идёт дальше", bx, y + 250, { size: 17, color: C.green, alpha: dv });
+  }
+};
+</script>
