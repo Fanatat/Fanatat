@@ -9,6 +9,10 @@ Chromium через Playwright, GIF собирает ffmpeg. Сторонние 
 | Схема Линды, 9 с, 15 fps | `demo-linda.html` | `../demo-linda.gif`, `../demo-linda.png` |
 | Схема контент-завода, 10 с, 15 fps | `demo-content-factory.html` | `../demo-content-factory.gif`, `../demo-content-factory.png` |
 
+Каждая сцена собирается и в вертикальной версии для телефона (`*-mobile.gif`, параметр `?m=1`): README
+подключает её через `<picture>` с `media="(max-width: 600px)"`, иначе на узком экране подписи становятся
+нечитаемыми. Схемы начинают цикл с законченного кадра (`SCENE.start`), чтобы GIF не открывался пустым.
+
 Общие цвета, узлы, линии и импульсы — `common.js`. Шрифты Inter и JetBrains Mono лежат в `fonts/`
 (лицензия SIL OFL, тексты рядом), поэтому кириллица одинакова на любой машине.
 
@@ -18,7 +22,7 @@ Chromium через Playwright, GIF собирает ffmpeg. Сторонние 
 
 ```bash
 python3 -m pip install playwright && python3 -m playwright install chromium   # один раз; нужен и ffmpeg
-python3 assets/src/render.py all            # все сцены
+python3 assets/src/render.py all            # все сцены, включая мобильные
 python3 assets/src/render.py cover          # только обложка
 python3 assets/src/render.py cover --frame 7.8 --work /tmp/frames   # один кадр для проверки
 ```
@@ -29,7 +33,7 @@ python3 assets/src/render.py cover --frame 7.8 --work /tmp/frames   # один �
 ## Как менять
 
 - Текст, узлы и тайминги — в начале каждого HTML (`N`, `P`, `ON`, `FADE`).
-- Размер GIF регулирует `--colors` (по умолчанию 128) и `fps` в `window.SCENE`. Сейчас обложка ~0,5 МБ,
-  каждая схема ~0,5 МБ.
+- Размер GIF регулирует `--colors` (по умолчанию 128) и `fps` в `window.SCENE`. Сейчас каждый GIF ~0,5 МБ;
+  страница грузит три из шести (широкие или мобильные).
 - Схемы проектов подписаны «Схема работы»: это не запись интерфейса. Интерфейс обоих продуктов — Telegram
   с личными переписками, поэтому данные в схемах тестовые.
