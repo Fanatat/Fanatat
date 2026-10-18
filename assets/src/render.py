@@ -2,6 +2,7 @@
 """Сборка анимаций профиля: HTML-сцена (canvas) → кадры PNG → GIF и статичный PNG.
 
     python3 assets/src/render.py cover            # обложка → assets/cover.gif + assets/cover.png
+    python3 assets/src/render.py cover-mobile     # вертикальная обложка для телефона
     python3 assets/src/render.py all              # все сцены
     python3 assets/src/render.py cover --frame 7.8  # один кадр для проверки → кадр в каталоге сборки
 
@@ -21,22 +22,26 @@ from playwright.sync_api import sync_playwright
 
 SRC = Path(__file__).resolve().parent
 OUT = SRC.parent
+# сцена → (исходник, имя результата, параметры страницы); *-mobile — вертикальные версии для узких экранов
 SCENES = {
-    "cover": "cover",
-    "linda": "demo-linda",
-    "factory": "demo-content-factory",
+    "cover": ("cover", "cover", ""),
+    "cover-mobile": ("cover", "cover-mobile", "?m=1"),
+    "linda": ("demo-linda", "demo-linda", ""),
+    "linda-mobile": ("demo-linda", "demo-linda-mobile", "?m=1"),
+    "factory": ("demo-content-factory", "demo-content-factory", ""),
+    "factory-mobile": ("demo-content-factory", "demo-content-factory-mobile", "?m=1"),
 }
 
 
 def render(name: str, work: Path, frame: float | None = None, colors: int = 128) -> None:
-    out_name = SCENES[name]
+    src, out_name, query = SCENES[name]
     frames = work / out_name
     shutil.rmtree(frames, ignore_errors=True)
     frames.mkdir(parents=True)
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page(device_scale_factor=1)
-        page.goto((SRC / f"{out_name}.html").as_uri())
+        page.goto((SRC / f"{src}.html").as_uri() + query)
         page.wait_for_function("window.ready !== undefined")
         page.evaluate("window.ready")
         scene = page.evaluate("window.SCENE")
@@ -53,10 +58,11 @@ def render(name: str, work: Path, frame: float | None = None, colors: int = 128)
             print(path)
             browser.close()
             return
-        fps, dur = scene["fps"], scene["duration"]
+        # start — с какого момента цикла начинается GIF: первый кадр должен выглядеть законченным.
+        fps, dur, start = scene["fps"], scene["duration"], scene.get("start", 0)
         count = round(fps * dur)
         for i in range(count):
-            shot(i / fps, frames / f"f{i:04d}.png")
+            shot((start + i / fps) % dur, frames / f"f{i:04d}.png")
         shot(scene["still"], OUT / f"{out_name}.png")
         browser.close()
 

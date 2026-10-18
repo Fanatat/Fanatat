@@ -107,6 +107,14 @@ function bez(p0, p1, p2, p3) {
 function straight(a, b) {
   return bez(a, [lerp(a[0], b[0], 1 / 3), lerp(a[1], b[1], 1 / 3)], [lerp(a[0], b[0], 2 / 3), lerp(a[1], b[1], 2 / 3)], b);
 }
+// Вертикальный изгиб: сверху вниз между узлами в разных колонках.
+function vcurve(a, b) {
+  const my = (a[1] + b[1]) / 2;
+  return bez(a, [a[0], my], [b[0], my], b);
+}
+// Мобильная версия сцены: ?m=1 (render.py, сцены *-mobile).
+const MOBILE = new URLSearchParams(location.search).has("m");
+
 // Горизонтальный изгиб между узлами на разной высоте.
 function curve(a, b) {
   const mx = (a[0] + b[0]) / 2;

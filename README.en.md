@@ -1,6 +1,9 @@
 <p align="right"><a href="README.md">Русский</a></p>
 
-<img src="assets/cover.gif" width="100%" alt="Valery — automation, AI agents, working products. Diagram: task → planning → two agents → verification → launch → monitoring">
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/cover-mobile.gif">
+  <img src="assets/cover.gif" width="100%" alt="Valery — automation, AI agents, working products. Diagram: task → planning → two agents → verification → launch → monitoring">
+</picture>
 
 I build and run automation powered by AI agents — from job matching to short-video production. I own the whole cycle: defining the task, developing with coding agents, verification, launch and operations.
 
@@ -16,7 +19,10 @@ People spend time only on vacancies that actually fit them. Every 15 minutes Lin
 
 Running since September 2026. As of October 18: about 12,000 vacancies collected, fewer than 3% of them shown to a person, 77 applications sent after confirmation. When a job board changes its markup, an AI agent repairs the parser in a sandbox, and the fix is accepted only if the tests pass.
 
-<img src="assets/demo-linda.gif" width="100%" alt="How Linda works: new vacancy → scoring (profile rules, model pre-screen, score 82) → Telegram card with Apply, Letter and Not for me buttons">
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/demo-linda-mobile.gif">
+  <img src="assets/demo-linda.gif" width="100%" alt="How Linda works: new vacancy → scoring (profile rules, model pre-screen, score 82) → Telegram card with Apply, Letter and Not for me buttons">
+</picture>
 
 <sub>Workflow diagram on a test vacancy; the card follows the bot's real format (labels are in Russian).</sub>
 
@@ -28,7 +34,10 @@ A topic turns into a finished vertical video: script, fact-check, footage, synth
 
 Running since September 24, 2026. As of October 16: 27 game-lore videos and 28 football videos approved. Publishing is still manual or done with a button that asks for confirmation.
 
-<img src="assets/demo-content-factory.gif" width="100%" alt="How the Content Factory works: topic → materials (script, fact-check, footage, voice, subtitles, editing) → vertical video preview → approval in Telegram with the Yes button">
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/demo-content-factory-mobile.gif">
+  <img src="assets/demo-content-factory.gif" width="100%" alt="How the Content Factory works: topic → materials (script, fact-check, footage, voice, subtitles, editing) → vertical video preview → approval in Telegram with the Yes button">
+</picture>
 
 <sub>Workflow diagram; the topic is an example, real video frames are not shown.</sub>
 
