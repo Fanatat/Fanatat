@@ -1,0 +1,103 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Линда — схема работы</title>
+<style>html,body{margin:0;background:#0D1117}canvas{display:block}</style>
+<canvas id="c"></canvas>
+<script src="common.js"></script>
+<script>
+// Схема работы Линды: вакансия → оценка соответствия → решение человека в Telegram.
+// Данные тестовые; формат карточки повторяет deliver.card_text / card_buttons бота.
+window.SCENE = { w: 1040, h: 460, duration: 9, fps: 15, still: 7.6 };
+const FADE = [8.3, 8.95];
+const ctx = setupCanvas();
+
+const COL = [
+  { x: 40,  w: 270, title: "1 · Новая вакансия" },
+  { x: 360, w: 250, title: "2 · Оценка" },
+  { x: 660, w: 340, title: "3 · Решение в Telegram" },
+];
+const TOP = 96, BOT = 432;
+
+function panel(c, a) {
+  roundRect(ctx, c.x, TOP, c.w, BOT - TOP, 12);
+  ctx.fillStyle = C.panel; ctx.fill();
+  ctx.lineWidth = 1.5; ctx.strokeStyle = mix(C.border, C.accent, a * 0.8); ctx.stroke();
+  text(ctx, c.title, c.x + 18, TOP + 34, { size: 19, weight: 600, color: mix(C.label, "#FFFFFF", a) });
+}
+
+const show = (t0, t) => smooth(t0, t0 + 0.4, t) * (1 - smooth(...FADE, t));
+
+window.renderAt = function (t) {
+  clear(ctx);
+  text(ctx, "Схема работы · Линда", 40, 52, { size: 22, weight: 650, color: C.text });
+  text(ctx, "тестовые данные", 1000, 52, { size: 18, color: C.muted, align: "right" });
+
+  const a = [level(t, 0.4, ...FADE), level(t, 2.3, ...FADE), level(t, 5.0, ...FADE)];
+  COL.forEach((c, i) => panel(c, a[i]));
+
+  // Стрелки между шагами и импульсы по ним.
+  const e1 = straight([310, 264], [360, 264]), e2 = straight([610, 264], [660, 264]);
+  drawEdge(ctx, e1, edgeLit(t, 2.2, ...FADE)); drawEdge(ctx, e2, edgeLit(t, 4.9, ...FADE));
+  drawPulse(ctx, e1, t, 1.7, 2.2); drawPulse(ctx, e2, t, 4.4, 4.9);
+
+  // 1. Вакансия: приходит со своими данными.
+  let c = COL[0], v = show(0.4, t);
+  const y0 = TOP + 76;
+  text(ctx, "hh.ru · Хабр Карьера", c.x + 18, y0, { size: 17, color: C.muted, alpha: v });
+  text(ctx, "Инженер по", c.x + 18, y0 + 40, { size: 21, weight: 600, alpha: v });
+  text(ctx, "автоматизации", c.x + 18, y0 + 66, { size: 21, weight: 600, alpha: v });
+  text(ctx, "Тестовая компания", c.x + 18, y0 + 100, { size: 18, color: C.label, alpha: v });
+  ["Удалённо", "Python · n8n · LLM", "Telegram-боты"].forEach((s, i) =>
+    text(ctx, "• " + s, c.x + 18, y0 + 140 + i * 30, { size: 18, color: C.label, alpha: show(0.7 + i * 0.25, t) }));
+
+  // 2. Оценка: правила профиля → предотбор моделью → балл 0–100 с причиной.
+  c = COL[1];
+  const steps = ["Правила профиля", "Предотбор моделью", "Оценка 0–100"];
+  steps.forEach((s, i) => {
+    const ts = 2.4 + i * 0.5, yy = TOP + 82 + i * 36, sv = show(ts, t);
+    text(ctx, s, c.x + 50, yy, { size: 18, color: C.label, alpha: sv });
+    drawCheck(ctx, c.x + 30, yy - 6, 10, smooth(ts + 0.2, ts + 0.45, t), sv);
+  });
+  const score = Math.round(82 * easeInOut(clamp((t - 3.9) / 0.8)));
+  const gv = show(3.8, t);
+  if (gv > 0.01) {
+    const gx = c.x + c.w / 2, gy = TOP + 248, r = 44;
+    ctx.save(); ctx.globalAlpha = gv; ctx.lineWidth = 7; ctx.lineCap = "round";
+    ctx.strokeStyle = C.border; ctx.beginPath(); ctx.arc(gx, gy, r, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = C.accent; ctx.beginPath();
+    ctx.arc(gx, gy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * score / 100); ctx.stroke();
+    ctx.restore();
+    text(ctx, String(score), gx, gy + 11, { size: 32, weight: 700, align: "center", alpha: gv });
+  }
+
+  // 3. Карточка в боте: формат как в deliver.card_text; отклик — только по кнопке человека.
+  c = COL[2]; v = show(5.0, t);
+  if (v > 0.01) {
+    const bx = c.x + 18, by = TOP + 56, bw = c.w - 36;
+    ctx.save(); ctx.globalAlpha = v;
+    roundRect(ctx, bx, by, bw, 124, 10); ctx.fillStyle = "#1E2630"; ctx.fill();
+    ctx.restore();
+    text(ctx, "🔥 82 · Инженер по автоматизации", bx + 12, by + 30, { size: 16, weight: 600, alpha: v });
+    text(ctx, "— Тестовая компания", bx + 14, by + 54, { size: 17, alpha: v });
+    text(ctx, "Удалённо · 2026-10-18", bx + 14, by + 80, { size: 16, color: C.muted, alpha: v });
+    text(ctx, "↳ совпадают n8n, боты, Python", bx + 14, by + 106, { size: 16, color: C.label, alpha: v });
+
+    const press = smooth(6.4, 6.6, t) * (1 - smooth(6.9, 7.2, t));
+    const done = smooth(6.8, 7.1, t);
+    const btn = (label, x, y, w, hl = 0) => {
+      ctx.save(); ctx.globalAlpha = v;
+      roundRect(ctx, x, y, w, 36, 8);
+      ctx.fillStyle = mix("#1E2630", C.greenHi, hl); ctx.fill();
+      ctx.lineWidth = 1.2; ctx.strokeStyle = mix(C.border, C.green, hl); ctx.stroke();
+      ctx.restore();
+      text(ctx, label, x + w / 2, y + 24, { size: 16, align: "center", alpha: v });
+    };
+    const ry = by + 136;
+    btn("✅ Откликнуться", bx, ry, bw, Math.max(press, done * 0.6));
+    btn("✍️ Письмо", bx, ry + 44, bw / 2 - 4);
+    btn("👎 Не моё", bx + bw / 2 + 4, ry + 44, bw / 2 - 4);
+    const dv = done * (1 - smooth(...FADE, t));
+    text(ctx, "Отклик — только после «да»", bx, ry + 118, { size: 17, color: C.green, alpha: dv });
+  }
+};
+</script>
