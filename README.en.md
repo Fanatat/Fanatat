@@ -15,9 +15,9 @@ Open to remote roles, project work and part-time engagements.
 
 ### Linda — job matching
 
-People spend time only on vacancies that actually fit them. Every 15 minutes Linda collects new postings from hh.ru and Habr Career; profile rules and two models filter them and score each from 0 to 100. An application goes out only after a human confirms it.
+People spend time only on vacancies that actually fit them. Every 15 minutes Linda collects new postings from hh.ru and Habr Career; profile rules and two models filter them and score each from 0 to 100. It now applies and replies in employer chats on its own; ambiguous cases go to a human in Telegram.
 
-Running since September 2026. As of October 18: about 12,000 vacancies collected, fewer than 3% of them shown to a person, 77 applications sent after confirmation. When a job board changes its markup, an AI agent repairs the parser in a sandbox, and the fix is accepted only if the tests pass.
+Running since September 2026. From October 16 to November 23: 521 confirmed applications; all 538 employer conversations are read in full and archived for analysis. When a job board changes its markup, an AI agent repairs the parser in a sandbox, and the fix is accepted only if the tests pass.
 
 <picture>
   <source media="(max-width: 600px)" srcset="assets/demo-linda-mobile.gif">
@@ -69,7 +69,7 @@ Game development experience: nine games in three months across several engines. 
 
 ## How I work
 
-I develop with AI coding agents. I define tasks and acceptance criteria, verify results with tests and live runs, and take responsibility for release and operations: schedules, backups, monitoring. In my systems, important actions are confirmed by a human.
+I develop with AI coding agents. I define tasks and acceptance criteria, verify results with tests and live runs, and take responsibility for release and operations: schedules, backups, monitoring. In my systems, ambiguous decisions are handed to a human.
 
 Most of these systems handle personal data and keys, so the code is private; I'm happy to walk through the architecture on a call.
 
